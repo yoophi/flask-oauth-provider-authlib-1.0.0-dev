@@ -8,6 +8,7 @@ authors = ["Pyunghyuk Yoo <62975595+purple-lion@users.noreply.github.com>"]
 python = "^3.7"
 flask = "1.1.2"
 authlib = { git = "https://github.com/lepture/authlib.git", branch = "master" }
+flask-sqlalchemy = "^2.5.1"
 
 
 [tool.poetry.dev-dependencies]
