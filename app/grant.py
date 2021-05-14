@@ -52,10 +52,6 @@ class PasswordGrant(grants.ResourceOwnerPasswordCredentialsGrant):
             return user
 
 
-class HybridGrant:
-    pass
-
-
 def exists_nonce(nonce, req):
     exists = db.session.query(AuthorizationCode).filter_by(
         client_id=req.client_id, nonce=nonce
@@ -68,7 +64,7 @@ def generate_user_info(user, scope):
 
 
 def read_private_key_file():
-    base = os.path.dirname(os.path.dirname(__file__))
+    base = os.path.dirname(__file__)
     with open(os.path.join(base, 'resources/private_key.pem'), 'r') as f:
         return f.read()
 
@@ -89,9 +85,9 @@ class OpenIDCode(_OpenIDCode):
         }
 
     def generate_user_info(self, user, scope):
-        user_info = UserInfo(sub=user.id, name=user.name)
+        user_info = UserInfo(sub=user.id, name=user.username)
         if 'email' in scope:
-            user_info['email'] = user.email
+            user_info['email'] = 'dummy-address@email.com'
         return user_info
 
 
@@ -115,14 +111,6 @@ class RefreshTokenGrant(grants.RefreshTokenGrant):
         credential.revoked = True
         db.session.add(credential)
         db.session.commit()
-
-
-# DUMMY_JWT_CONFIG = {
-#     'key': 'secret-key',
-#     'alg': 'HS256',
-#     'iss': 'https://authlib.org',
-#     'exp': 3600,
-# }
 
 
 class OpenIDImplicitGrant(_OpenIDImplicitGrant):
