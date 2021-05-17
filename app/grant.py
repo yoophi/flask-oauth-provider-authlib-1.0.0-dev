@@ -1,4 +1,5 @@
 import os
+from dataclasses import dataclass
 
 from authlib.oauth2.rfc6749 import grants
 from authlib.oidc.core import (
@@ -7,9 +8,32 @@ from authlib.oidc.core import (
     OpenIDImplicitGrant as _OpenIDImplicitGrant,
     OpenIDCode as _OpenIDCode,
 )
+from flask import current_app
+from werkzeug.local import LocalProxy
 
 from app.database import db
 from app.models import AuthorizationCode, User, OAuth2Token
+
+
+@dataclass
+class JwtConfig:
+    key: str
+    alg: str
+    iss: str
+    exp: int
+
+
+def get_jwt_config():
+    return JwtConfig(
+        key=current_app.config.get('OAUTH2_JWT_SECRET_KEY'),
+        alg=current_app.config.get('OAUTH2_JWT_ALG'),
+        iss=current_app.config.get('OAUTH2_JWT_ISS'),
+        exp=int(current_app.config.get('OAUTH2_JWT_EXP')),
+    )
+
+
+# noinspection PyTypeChecker
+current_jwt_config: JwtConfig = LocalProxy(get_jwt_config)
 
 
 class AuthorizationCodeGrant(grants.AuthorizationCodeGrant):
@@ -78,10 +102,10 @@ class OpenIDCode(_OpenIDCode):
 
     def get_jwt_config(self, grant):
         return {
-            'key': read_private_key_file(),
-            'alg': 'RS512',
-            'iss': 'https://example.com',
-            'exp': 3600
+            'key': current_jwt_config.key,
+            'alg': current_jwt_config.alg,
+            'iss': current_jwt_config.iss,
+            'exp': current_jwt_config.exp,
         }
 
     def generate_user_info(self, user, scope):
@@ -122,10 +146,10 @@ class OpenIDImplicitGrant(_OpenIDImplicitGrant):
 
     def get_jwt_config(self):
         return {
-            'key': read_private_key_file(),
-            'alg': 'RS512',
-            'iss': 'https://example.com',
-            'exp': 3600
+            'key': current_jwt_config.key,
+            'alg': current_jwt_config.alg,
+            'iss': current_jwt_config.iss,
+            'exp': current_jwt_config.exp,
         }
 
     def generate_user_info(self, user, scope):
@@ -158,10 +182,10 @@ class OpenIDHybridGrant(_OpenIDHybridGrant):
 
     def get_jwt_config(self):
         return {
-            'key': read_private_key_file(),
-            'alg': 'RS512',
-            'iss': 'https://example.com',
-            'exp': 3600
+            'key': current_jwt_config.key,
+            'alg': current_jwt_config.alg,
+            'iss': current_jwt_config.iss,
+            'exp': current_jwt_config.exp,
         }
 
     def generate_user_info(self, user, scope):

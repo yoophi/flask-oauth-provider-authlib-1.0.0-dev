@@ -33,9 +33,6 @@ from authlib.integrations.sqla_oauth2 import (
     create_bearer_token_validator
 )
 
-# query_client = create_query_client_func(db.session, Client)
-# save_token = create_save_token_func(db.session, Token)
-
 authorization = AuthorizationServer()
 require_oauth = ResourceProtector()
 
